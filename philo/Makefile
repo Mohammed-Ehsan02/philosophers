@@ -6,11 +6,11 @@
 #    By: mkhan <mkhan@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/24 11:18:06 by mkhan             #+#    #+#              #
-#    Updated: 2022/10/24 11:18:31 by mkhan            ###   ########.fr        #
+#    Updated: 2022/10/25 17:07:56 by mkhan            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS			=	prac.c
+SRCS			=	prac.c philo_utils.c
 
 OBJS			= $(SRCS:.c=.o)
 
