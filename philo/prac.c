@@ -6,7 +6,7 @@
 /*   By: mkhan <mkhan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/05 14:28:07 by mkhan             #+#    #+#             */
-/*   Updated: 2022/10/26 20:07:47 by mkhan            ###   ########.fr       */
+/*   Updated: 2022/10/26 21:26:13 by mkhan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,8 +223,8 @@ bool	ft_sleep(t_philo *philo)
 	}
 	else
 	{
-		pthread_mutex_lock(&philo->lock);
 		pthread_mutex_lock(&philo->next->lock);
+		pthread_mutex_lock(&philo->lock);
 	}
 	return (true);
 }
@@ -234,7 +234,7 @@ bool	eat(t_philo *philo)
 	philo->fork = 1;
 	philo->next->fork = 1;
 	philo->m_fork = philo->id;
-	philo->next->m_fork = philo->next->id;
+	philo->next->m_fork = philo->id;
 	philo->life = n_timestamp(&philo->life_t);
 	pthread_mutex_unlock(&philo->rlock);
 	pthread_mutex_unlock(&philo->lock);
@@ -261,12 +261,12 @@ void	*routine(void *philo_data)
 	t_philo	*philo;
 	
 	philo = (t_philo *) philo_data;
-	while (philo->key->no_phil == 1)
-		return (single_t_sleep(philo, philo->time_to_die)); //change the parameters for the function
+	// while (philo->key->no_phil == 1)
+	// 	return (single_t_sleep(philo, philo->time_to_die)); //change the parameters for the function
 	while (1)
 	{
 		if (is_dead(philo) || !philo->rounds)
-		break ;
+			break ;
 		lock_order(philo);
 		pthread_mutex_lock(&philo->rlock);
 		if (!(philo->fork) && !(philo->next->fork) && philo->rounds && fork_mask(philo))
