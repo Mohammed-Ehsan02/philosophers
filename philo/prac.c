@@ -6,30 +6,30 @@
 /*   By: mkhan <mkhan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/05 14:28:07 by mkhan             #+#    #+#             */
-/*   Updated: 2022/10/27 16:31:08 by mkhan            ###   ########.fr       */
+/*   Updated: 2022/10/27 18:01:27 by mkhan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-
 long	n_timestamp(struct timeval *time)
 {
-	struct timeval c_time;
-	long	res;
-	
+	struct timeval	c_time;
+	long			res;
+
 	gettimeofday(&c_time, NULL);
-	
-	res = ((c_time.tv_sec - time->tv_sec) * 1000) + ((c_time.tv_usec - time->tv_usec) / 1000);
+	res = ((c_time.tv_sec - time->tv_sec) * 1000) + ((c_time.tv_usec
+				- time->tv_usec) / 1000);
 	return (res);
-	// return (((c_time.tv_sec - time->tv_sec) * 1000) + ((c_time.tv_usec - time->tv_usec) / 1000));
+	// return (((c_time.tv_sec - time->tv_sec) * 1000) + ((c_time.tv_usec
+					// - time->tv_usec) / 1000));
 }
 
 size_t	timestamp_new(void)
 {
-	struct timeval c_time;
-	size_t	time;
-	
+	struct timeval	c_time;
+	size_t			time;
+
 	gettimeofday(&c_time, NULL);
 	time = (c_time.tv_sec * 1000000 + c_time.tv_usec);
 	return (time);
@@ -44,10 +44,10 @@ void	ft_mutex(t_philo *philo, int lock_flag)
 		pthread_mutex_unlock(&philo->philo_info->dlock);
 }
 
-void	print_info(t_philo	*philo, int print_order)
+void	print_info(t_philo *philo, int print_order)
 {
 	ft_mutex(philo, 1);
-	if (!philo->philo_info->p_dead)
+	if (!philo->philo_info->philo_dead)
 	{
 		pthread_mutex_lock(&philo->philo_info->print_lock);
 		ft_putnbr(n_timestamp(&philo->life_t));
@@ -64,14 +64,14 @@ void	print_info(t_philo	*philo, int print_order)
 		else if (print_order == 5)
 		{
 			ft_putstr(" died\n");
-			philo->philo_info->p_dead = 1;
+			philo->philo_info->philo_dead = true;
 		}
 		pthread_mutex_unlock(&philo->philo_info->print_lock);
 	}
 	ft_mutex(philo, 0);
 }
 
-void	init_info(t_philo	*philo, int argc, char **argv)
+void	init_info(t_philo *philo, int argc, char **argv)
 {
 	philo->fork = 0;
 	philo->m_fork = 0;
@@ -82,21 +82,21 @@ void	init_info(t_philo	*philo, int argc, char **argv)
 	pthread_mutex_init(&philo->rlock, NULL);
 	philo->philo_info->num_of_philo = ft_atoi(argv[1]);
 	if (argc == 6)
-		philo->philo_info->rounds = ft_atoi(argv[5]);
+		philo->philo_info->times_to_eat = ft_atoi(argv[5]);
 	else
-		philo->philo_info->rounds = -1;
+		philo->philo_info->times_to_eat = -1;
 }
 
-bool	init_philo(t_philo	*philo, int argc, char **argv)
+bool	init_philo(t_philo *philo, int argc, char **argv)
 {
-	int	i;
+	int		i;
 	t_info	*philo_info;
 
 	i = 0;
 	philo_info = malloc(sizeof(t_info));
 	if (!philo_info)
 		return (false);
-	philo_info->p_dead = 0;
+	philo_info->philo_dead = false;
 	pthread_mutex_init(&philo_info->print_lock, NULL);
 	pthread_mutex_init(&philo_info->dlock, NULL);
 	while (i < ft_atoi(argv[1]))
@@ -130,24 +130,18 @@ int	*handle_single_philo(t_philo *philo, int ttime)
 			break ;
 		ts = timestamp_new();
 	}
-	// ft_putnbr(n_timestamp(&philo->life_t));
-	// ft_putchar(' ');
-	// ft_putnbr(philo->id);
-	// ft_putstr(" died\n");
-	print_info(philo, 1);
+	print_info(philo, 5);
 	return (NULL);
 }
-
-
 
 int	is_philo_dead(t_philo *philo)
 {
 	long	n_time;
 	int		flag;
-	
+
 	flag = 0;
 	ft_mutex(philo, 1);
-	if (philo->philo_info->p_dead)
+	if (philo->philo_info->philo_dead)
 		flag = 1;
 	else
 	{
@@ -157,7 +151,7 @@ int	is_philo_dead(t_philo *philo)
 			ft_mutex(philo, 0);
 			print_info(philo, 5);
 			ft_mutex(philo, 1);
-			philo->philo_info->p_dead = 1;
+			philo->philo_info->philo_dead = true;
 			flag = 1;
 		}
 	}
@@ -179,28 +173,28 @@ void	lock_order(t_philo *philo)
 	}
 }
 
-int	check_mirror_fork(t_philo *philo)
+bool	check_mirror_fork(t_philo *philo)
 {
 	if (philo->m_fork == philo->id || philo->next->m_fork == philo->id)
-		return (0);
-	return (1);
+		return (true);
+	return (false);
 }
 
-int	t_sleep(t_philo *philo, int khana_time)
+bool	t_sleep(t_philo *philo, int khana_time)
 {
-size_t	ts;
-size_t	target;
+	size_t	ts;
+	size_t	target;
 
-ts = timestamp_new();
-target = ts + (khana_time * 1000);
-while (ts < target)
-{
-	if (is_philo_dead(philo))
-		return (1);
-	usleep(100);
 	ts = timestamp_new();
-}
-return (0);
+	target = ts + (khana_time * 1000);
+	while (ts < target)
+	{
+		if (is_philo_dead(philo))
+			return (false);
+		usleep(100);
+		ts = timestamp_new();
+	}
+	return (true);
 }
 
 bool	philo_sleep(t_philo *philo)
@@ -245,8 +239,8 @@ bool	philo_eat(t_philo *philo)
 	print_info(philo, 1);
 	print_info(philo, 1);
 	print_info(philo, 2);
-	philo->philo_info->rounds--;
-	if (t_sleep(philo, philo->philo_info->time_to_eat))
+	philo->philo_info->times_to_eat--;
+	if (!t_sleep(philo, philo->philo_info->time_to_eat))
 		return (false);
 	lock_order(philo);
 	philo->fork = 0;
@@ -262,21 +256,21 @@ bool	philo_eat(t_philo *philo)
 void	*routine(void *philo_data)
 {
 	t_philo	*philo;
-	
-	philo = (t_philo *) philo_data;
+
+	philo = (t_philo *)philo_data;
 	while (philo->philo_info->num_of_philo == 1)
-		return (handle_single_philo(philo, philo->philo_info->time_to_die)); //change the parameters for the function
+		return (handle_single_philo(philo, philo->philo_info->time_to_die));
+		//change the parameters for the function
 	while (1)
 	{
-		if (is_philo_dead(philo) || !philo->philo_info->rounds)
+		if (is_philo_dead(philo) || !philo->philo_info->times_to_eat)
 			break ;
 		lock_order(philo);
 		pthread_mutex_lock(&philo->rlock);
-		if (!(philo->fork) && !(philo->next->fork) && philo->philo_info->rounds && check_mirror_fork(philo))
-		{
+		if (!(philo->fork) && !(philo->next->fork)
+			&& philo->philo_info->times_to_eat && !check_mirror_fork(philo))
 			if (!philo_eat(philo))
 				return (NULL);
-		}
 		pthread_mutex_unlock(&philo->rlock);
 		pthread_mutex_unlock(&philo->lock);
 		pthread_mutex_unlock(&philo->next->lock);
@@ -285,23 +279,52 @@ void	*routine(void *philo_data)
 	return (NULL);
 }
 
+bool	ft_error(int argc, char **argv)
+{
+	int	i;
+
+	i = 0;
+	if (argc < 5 || argc > 6)
+	{
+		ft_putstr("Error : Run philo using ./philo 2 800 200 200 ((7) -- optional)");
+		return (false);
+	}
+	while (argv[i] && argc == 3)
+	{
+		if (*argv[i] == '\0' || ft_atoi(argv[1]) <= 0)
+		{
+			ft_putstr("Error : Run philo using ./philo 2 800 200 200 ((7) -- optional)");
+			return (false);
+		}
+		i++;
+	}
+	if (argc == 6 && (ft_atoi(argv[5]) <= 0 || *argv[5] == '\0'))
+	{
+		ft_putstr("Error : Run philo using ./philo 2 800 200 200 ((7) -- optional)");
+		return (false);
+	}
+	return (true);
+}
+
+
+
 int	main(int argc, char **argv)
 {
-	t_philo	*philo;
-	int		i;
-	
-	// if (ft_error(argc, argv))
-	// 	return (1);
+	t_philo *philo;
+	int i;
+
+	if (!ft_error(argc, argv))
+		return (1);
 	philo = malloc(sizeof(t_philo) * ft_atoi(argv[1]));
 	if (!philo)
 		return (1);
-	// ph_create_threads(); --- create threads
 	if (!init_philo(philo, argc, argv))
 		return (1);
+	// ph_create_threads(); --- create threads
 	i = 0;
 	while (i < ft_atoi(argv[1]))
 	{
-		pthread_create(&philo[i].thread, NULL, routine, (void *) &philo[i]);
+		pthread_create(&philo[i].thread, NULL, routine, (void *)&philo[i]);
 		usleep(100);
 		i++;
 	}

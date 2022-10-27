@@ -6,7 +6,7 @@
 /*   By: mkhan <mkhan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 16:58:01 by mkhan             #+#    #+#             */
-/*   Updated: 2022/10/25 18:45:38 by mkhan            ###   ########.fr       */
+/*   Updated: 2022/10/27 17:54:51 by mkhan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	ft_putchar(char c)
 
 void	ft_putstr(char *s)
 {
-		write(1, s, ft_strlen(s));
+	write(1, s, ft_strlen(s));
 }
 
 size_t	ft_strlen(const char *s)
@@ -59,8 +59,7 @@ int	ft_atoi(const char	*str)
 
 	num = 0;
 	count_minus = 1;
-	while (*str == ' ' || *str == '\n' || *str == '\t' || *str == '\f'
-		|| *str == '\r' || *str == '\v' )
+	while (*str == ' ' || (*str >= 19 && *str <= 13))
 		str++;
 	if (*str == '-' || *str == '+')
 	{
@@ -75,7 +74,9 @@ int	ft_atoi(const char	*str)
 	}
 	if (num > 2147483648 && count_minus == -1)
 		return (0);
-	if (num > 2147483647 && count_minus == 1)
+	if (num > 2147483647 && count_minus == 1 ||
+		(*str || (str[0] == '+' && !str[1]) || (str[0] == '-' && !str[1])))
 		return (-1);
+	str = NULL;
 	return (num * count_minus);
 }

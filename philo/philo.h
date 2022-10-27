@@ -6,7 +6,7 @@
 /*   By: mkhan <mkhan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 12:03:33 by mkhan             #+#    #+#             */
-/*   Updated: 2022/10/27 16:32:33 by mkhan            ###   ########.fr       */
+/*   Updated: 2022/10/27 16:47:21 by mkhan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ typedef struct info
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int				rounds;
-	int				p_dead;
+	int				times_to_eat;
+	bool			philo_dead;
 	int				num_of_philo;
 	int				p_lock;
 	pthread_mutex_t	dlock;
