@@ -6,7 +6,7 @@
 /*   By: mkhan <mkhan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/05 14:28:07 by mkhan             #+#    #+#             */
-/*   Updated: 2022/10/27 18:01:27 by mkhan            ###   ########.fr       */
+/*   Updated: 2022/11/10 13:24:33 by mkhan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@ long	n_timestamp(struct timeval *time)
 	res = ((c_time.tv_sec - time->tv_sec) * 1000) + ((c_time.tv_usec
 				- time->tv_usec) / 1000);
 	return (res);
-	// return (((c_time.tv_sec - time->tv_sec) * 1000) + ((c_time.tv_usec
-					// - time->tv_usec) / 1000));
 }
 
 size_t	timestamp_new(void)
@@ -33,7 +31,6 @@ size_t	timestamp_new(void)
 	gettimeofday(&c_time, NULL);
 	time = (c_time.tv_sec * 1000000 + c_time.tv_usec);
 	return (time);
-	// return ((c_time.tv_sec * 1000000) + (c_time.tv_usec));
 }
 
 void	ft_mutex(t_philo *philo, int lock_flag)
@@ -82,9 +79,9 @@ void	init_info(t_philo *philo, int argc, char **argv)
 	pthread_mutex_init(&philo->rlock, NULL);
 	philo->philo_info->num_of_philo = ft_atoi(argv[1]);
 	if (argc == 6)
-		philo->philo_info->times_to_eat = ft_atoi(argv[5]);
+		philo->times_to_eat = ft_atoi(argv[5]);
 	else
-		philo->philo_info->times_to_eat = -1;
+		philo->times_to_eat = -1;
 }
 
 bool	init_philo(t_philo *philo, int argc, char **argv)
@@ -239,12 +236,18 @@ bool	philo_eat(t_philo *philo)
 	print_info(philo, 1);
 	print_info(philo, 1);
 	print_info(philo, 2);
-	philo->philo_info->times_to_eat--;
+	philo->times_to_eat--;
 	if (!t_sleep(philo, philo->philo_info->time_to_eat))
 		return (false);
 	lock_order(philo);
 	philo->fork = 0;
 	philo->next->fork = 0;
+	if (philo->times_to_eat == 0)
+	{
+		pthread_mutex_unlock(&philo->lock);
+		pthread_mutex_unlock(&philo->next->lock);
+		return (false);
+	}
 	print_info(philo, 3);
 	if (!philo_sleep(philo))
 		return (false);
@@ -260,15 +263,14 @@ void	*routine(void *philo_data)
 	philo = (t_philo *)philo_data;
 	while (philo->philo_info->num_of_philo == 1)
 		return (handle_single_philo(philo, philo->philo_info->time_to_die));
-		//change the parameters for the function
 	while (1)
 	{
-		if (is_philo_dead(philo) || !philo->philo_info->times_to_eat)
+		if (is_philo_dead(philo) || !philo->times_to_eat)
 			break ;
 		lock_order(philo);
 		pthread_mutex_lock(&philo->rlock);
 		if (!(philo->fork) && !(philo->next->fork)
-			&& philo->philo_info->times_to_eat && !check_mirror_fork(philo))
+			&& philo->times_to_eat && !check_mirror_fork(philo))
 			if (!philo_eat(philo))
 				return (NULL);
 		pthread_mutex_unlock(&philo->rlock);
@@ -283,35 +285,30 @@ bool	ft_error(int argc, char **argv)
 {
 	int	i;
 
-	i = 0;
 	if (argc < 5 || argc > 6)
 	{
-		ft_putstr("Error : Run philo using ./philo 2 800 200 200 ((7) -- optional)");
+		ft_putstr("Error : Run philo using ./philo 2 800 200 200 \
+					((7) -- optional)");
 		return (false);
 	}
-	while (argv[i] && argc == 3)
+	i = 1;
+	while (argv[i])
 	{
-		if (*argv[i] == '\0' || ft_atoi(argv[1]) <= 0)
+		if (*argv[i] == '\0' || ft_atoi(argv[i]) <= 0)
 		{
-			ft_putstr("Error : Run philo using ./philo 2 800 200 200 ((7) -- optional)");
+			ft_putstr("Error : Run philo using ./philo 2 800 200 200 \
+						((7) --- optional)");
 			return (false);
 		}
 		i++;
 	}
-	if (argc == 6 && (ft_atoi(argv[5]) <= 0 || *argv[5] == '\0'))
-	{
-		ft_putstr("Error : Run philo using ./philo 2 800 200 200 ((7) -- optional)");
-		return (false);
-	}
 	return (true);
 }
 
-
-
 int	main(int argc, char **argv)
 {
-	t_philo *philo;
-	int i;
+	t_philo	*philo;
+	int		i;
 
 	if (!ft_error(argc, argv))
 		return (1);
@@ -320,7 +317,6 @@ int	main(int argc, char **argv)
 		return (1);
 	if (!init_philo(philo, argc, argv))
 		return (1);
-	// ph_create_threads(); --- create threads
 	i = 0;
 	while (i < ft_atoi(argv[1]))
 	{
