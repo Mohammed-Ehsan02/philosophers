@@ -6,11 +6,12 @@
 #    By: mkhan <mkhan@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/24 11:18:06 by mkhan             #+#    #+#              #
-#    Updated: 2022/10/26 21:24:36 by mkhan            ###   ########.fr        #
+#    Updated: 2022/11/16 14:46:39 by mkhan            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS			=	prac.c philo_utils.c
+SRCS			=	philo.c philo_utils.c philo_init.c philo_actions.c \
+					philo_mutex_time.c 
 
 OBJS			= $(SRCS:.c=.o)
 

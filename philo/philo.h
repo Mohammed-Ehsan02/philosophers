@@ -6,7 +6,7 @@
 /*   By: mkhan <mkhan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 12:03:33 by mkhan             #+#    #+#             */
-/*   Updated: 2022/11/10 13:16:17 by mkhan            ###   ########.fr       */
+/*   Updated: 2022/11/16 14:57:30 by mkhan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,23 @@ typedef struct philo
 	struct philo	*next;
 }	t_philo;
 
-/* ----- Utils functions ----- */
+/* ----- PHILO ACTION ----- */
+int		*handle_single_philo(t_philo *philo, int ttime);
+bool	philo_eat(t_philo *philo);
+int		is_philo_dead(t_philo *philo);
+
+/* ----- MUTEX LOCK/UNLOCK AND TIME CALCULATION FUNCTIONS ----- */
+long	n_timestamp(struct timeval *time);
+size_t	timestamp_new(void);
+void	ft_mutex(t_philo *philo, int lock_flag);
+void	lock_order(t_philo *philo);
+
+/* ----- INITIALIZE PHILO DATA / PRINT DATA / PARSING ----- */
+void	print_info(t_philo *philo, int print_order);
+bool	init_philo(t_philo *philo, int argc, char **argv);
+bool	ft_error(int argc, char **argv);
+
+/* ----- UTILS FUNCTIONS ----- */
 void	ft_putchar(char c);
 void	ft_putstr(char *s);
 size_t	ft_strlen(const char *s);
