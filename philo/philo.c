@@ -6,7 +6,7 @@
 /*   By: mkhan <mkhan@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/05 14:28:07 by mkhan             #+#    #+#             */
-/*   Updated: 2022/11/16 15:13:11 by mkhan            ###   ########.fr       */
+/*   Updated: 2022/11/16 15:13:55 by mkhan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,12 +88,9 @@ int	main(int argc, char **argv)
 		usleep(100);
 		i++;
 	}
-	i = 0;
-	while (i < ft_atoi(argv[1]))
-	{
+	i = -1;
+	while (++i < ft_atoi(argv[1]))
 		pthread_join(philo[i].thread, NULL);
-		i++;
-	}
 	free(philo->philo_info);
 	free(philo);
 	return (0);
